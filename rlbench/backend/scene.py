@@ -88,7 +88,7 @@ class Scene(object):
 
         # Set at the centre of the workspace
         task.get_base().set_position(self._workspace.get_position())
-
+       
         self._initial_task_state = task.get_state()
         self.task = task
         self._initial_task_pose = task.boundary_root().get_orientation()
@@ -107,6 +107,13 @@ class Scene(object):
 
     def init_task(self) -> None:
         self.task.init_task()
+        # -------------modify
+        if self.task.name == 'place_shape_in_shape_sorter_new':
+            if not Dummy.exists('waypoint3'):
+                self.waypoint3 = Dummy.create()
+                self.waypoint3.set_name('waypoint3')
+                self.waypoint3.set_position([0.25, 0, 0.922], relative_to=None)
+                self.waypoint3.set_orientation([0, 1.13, 0], relative_to=None)
         self._initial_task_state = self.task.get_state()
         self._has_init_task = True
         self._variation_index = 0
@@ -345,6 +352,7 @@ class Scene(object):
             demo.append(self.get_observation())
         while True:
             success = False
+            gripper_open = 1.0 if self.robot.gripper.get_open_amount()[0] > 0.9 else 0.0
             for i, point in enumerate(waypoints):
                 point.start_of_path()
                 if point.skip:
